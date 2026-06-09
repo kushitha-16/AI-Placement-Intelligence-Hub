@@ -16,6 +16,8 @@ function App() {
   const [selectedResumeId, setSelectedResumeId] = useState("");
   const [matchResult, setMatchResult] = useState(null);
 
+  const [interviewQuestions, setInterviewQuestions] = useState(null);
+
   const samplePost = `Greetings from Amazon India!
 
 We are writing to invite eligible students from your institution to register for Amazon ML Summer School 2026.
@@ -125,6 +127,20 @@ Program details:
     setMatchResult(data);
   };
 
+  const generateInterviewQuestions = async () => {
+    if (!selectedJobId || !selectedResumeId) {
+      alert("Please select both job post and resume first.");
+      return;
+    }
+
+    const response = await fetch(
+      `http://localhost:8080/api/interview?jobPostId=${selectedJobId}&resumeId=${selectedResumeId}`
+    );
+
+    const data = await response.json();
+    setInterviewQuestions(data);
+  };
+
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
@@ -227,6 +243,13 @@ Program details:
             Check Match Score
           </button>
 
+          <br />
+          <br />
+
+          <button className="primary-btn" onClick={generateInterviewQuestions}>
+            Generate Interview Questions
+          </button>
+
           {matchResult && (
             <div className="info-box">
               <h3>Match Result</h3>
@@ -248,18 +271,47 @@ Program details:
                   <span key={index}>{skill}</span>
                 ))}
               </div>
+
               <h3>Personalized Study Plan</h3>
-             <div className="study-plan">
-              {matchResult.studyPlan?.map((item, index) => (
-             <p key={index}>{item}</p>
-              ))}
+              <div className="study-plan">
+                {matchResult.studyPlan?.map((item, index) => (
+                  <p key={index}>{item}</p>
+                ))}
+              </div>
+
+              <h3>Resume Improvement Suggestions</h3>
+              <div className="suggestions-box">
+                {matchResult.resumeSuggestions?.map((item, index) => (
+                  <p key={index}>✅ {item}</p>
+                ))}
+              </div>
             </div>
-            <h3>Resume Improvement Suggestions</h3>
-<div className="suggestions-box">
-  {matchResult.resumeSuggestions?.map((item, index) => (
-    <p key={index}>✅ {item}</p>
-  ))}
-</div>
+          )}
+
+          {interviewQuestions && (
+            <div className="info-box">
+              <h3>Interview Questions for {interviewQuestions.companyName}</h3>
+
+              <h4>Technical Questions</h4>
+              <ul>
+                {interviewQuestions.technicalQuestions?.map((q, index) => (
+                  <li key={index}>{q}</li>
+                ))}
+              </ul>
+
+              <h4>HR Questions</h4>
+              <ul>
+                {interviewQuestions.hrQuestions?.map((q, index) => (
+                  <li key={index}>{q}</li>
+                ))}
+              </ul>
+
+              <h4>Project Questions</h4>
+              <ul>
+                {interviewQuestions.projectQuestions?.map((q, index) => (
+                  <li key={index}>{q}</li>
+                ))}
+              </ul>
             </div>
           )}
         </section>
