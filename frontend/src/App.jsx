@@ -154,6 +154,83 @@ Program details:
     fetchJobs();
   };
 
+  const getDeadlineStatus = (deadlineText) => {
+  if (!deadlineText || deadlineText === "Not found") {
+    return "No deadline available";
+  }
+
+  const deadline = new Date(deadlineText);
+  const today = new Date();
+
+  const diffDays = Math.ceil(
+    (deadline - today) / (1000 * 60 * 60 * 24)
+  );
+  if (isNaN(diffDays)) {
+    return "Date format not recognized";
+  }
+  if (diffDays < 0) {
+    return "🔴 Deadline Passed";
+  }
+  if (diffDays <= 3) {
+    return `⚠️ Deadline in ${diffDays} day(s)`;
+  }
+  return `✅ ${diffDays} days remaining`;
+};
+const getCompanyRoadmap = (companyName) => {
+  if (!companyName) {
+    return ["No company selected."];
+  }
+
+  const company = companyName.toLowerCase();
+
+  if (company.includes("cognizant")) {
+    return [
+      "Revise Java basics and OOPs concepts.",
+      "Practice SQL queries: joins, group by, subqueries.",
+      "Prepare aptitude topics: percentages, ratios, time and work.",
+      "Practice communication round questions.",
+      "Revise resume projects for technical interview."
+    ];
+  }
+
+  if (company.includes("amazon")) {
+    return [
+      "Revise Machine Learning basics.",
+      "Study Deep Learning, NLP, RAG, and LLM concepts.",
+      "Practice aptitude and logical reasoning.",
+      "Prepare for online assessment rounds.",
+      "Explain AI-related projects clearly."
+    ];
+  }
+
+  if (company.includes("tcs")) {
+    return [
+      "Practice TCS NQT aptitude and reasoning.",
+      "Revise Java/Python programming basics.",
+      "Practice coding questions on arrays and strings.",
+      "Prepare HR questions.",
+      "Revise academic and project fundamentals."
+    ];
+  }
+
+  if (company.includes("infosys")) {
+    return [
+      "Practice aptitude and puzzle-based questions.",
+      "Revise DBMS, OOPs, and programming basics.",
+      "Prepare for technical interview questions.",
+      "Practice communication and HR questions.",
+      "Review resume projects."
+    ];
+  }
+
+  return [
+    "Revise required skills from the job post.",
+    "Practice aptitude and logical reasoning.",
+    "Prepare technical interview questions.",
+    "Revise resume projects.",
+    "Attend one mock interview."
+  ];
+};
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
@@ -241,7 +318,11 @@ Program details:
                 <h2>Latest Extracted Result</h2>
                 <p><b>Company:</b> {result.companyName}</p>
                 <p><b>Role:</b> {result.roleName}</p>
-                <p><b>Deadline:</b> {result.deadline}</p>
+                <p><b>Deadline:</b> {job.deadline}</p>
+                <p>
+                <b>Alert:</b>{" "}
+                {getDeadlineStatus(job.deadline)}
+                </p>
                 <p><b>Eligibility:</b> {result.eligibility}</p>
                 <p><b>Skills:</b> {result.requiredSkills?.join(", ")}</p>
               </section>
@@ -263,6 +344,10 @@ Program details:
                         <h3>{job.companyName}</h3>
                         <p><b>Role:</b> {job.roleName}</p>
                         <p><b>Deadline:</b> {job.deadline}</p>
+                        <p>
+                        <b>Alert:</b>{" "}
+                        {getDeadlineStatus(job.deadline)}
+                        </p>
                         <p><b>Skills:</b> {job.requiredSkills}</p>
                         <p><b>Status:</b> {job.applicationStatus || "Not Applied"}</p>
                       </div>
@@ -376,6 +461,12 @@ Program details:
                       <p key={index}>✅ {item}</p>
                     ))}
                   </div>
+                  <h3>Company Preparation Roadmap</h3>
+                  <div className="roadmap-box">
+                  {getCompanyRoadmap(matchResult.companyName)?.map((item, index) => (
+                  <p key={index}>🎯 {item}</p>
+                  ))}
+                </div>
                 </div>
               )}
             </section>

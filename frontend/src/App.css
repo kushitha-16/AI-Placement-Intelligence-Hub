@@ -278,3 +278,29 @@ select {
     grid-template-columns: 1fr;
   }
 }
+.deadline-warning {
+  color: orange;
+  font-weight: bold;
+}
+
+.deadline-danger {
+  color: red;
+  font-weight: bold;
+}
+
+.deadline-safe {
+  color: green;
+  font-weight: bold;
+}.roadmap-box {
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.roadmap-box p {
+  margin: 8px 0;
+  color: #3730a3;
+  font-weight: 500;
+}
