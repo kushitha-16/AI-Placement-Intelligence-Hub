@@ -32,4 +32,10 @@ public class JobPostController {
     public ResponseEntity<List<JobPost>> getAllJobPosts() {
         return ResponseEntity.ok(jobPostService.getAllJobPosts());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteJobPost(@PathVariable Long id) {
+        jobPostService.deleteJobPost(id);
+        return ResponseEntity.ok("Job post deleted successfully");
+    }
 }

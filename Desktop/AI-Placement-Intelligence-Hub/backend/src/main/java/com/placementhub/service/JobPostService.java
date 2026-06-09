@@ -67,6 +67,9 @@ public class JobPostService {
     public List<JobPost> getAllJobPosts() {
         return jobPostRepository.findAll();
     }
+    public void deleteJobPost(Long id) {
+    jobPostRepository.deleteById(id);
+}
 
     private String extractCompanyName(String text) {
         String lowerText = text.toLowerCase();

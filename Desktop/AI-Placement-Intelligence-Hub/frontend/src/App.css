@@ -1,4 +1,3 @@
-cat > src/App.css <<'EOF'
 * {
   box-sizing: border-box;
 }
@@ -45,6 +44,12 @@ body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .card h2 {
   margin-top: 0;
   color: #1e3a8a;
@@ -59,80 +64,82 @@ textarea {
   font-size: 15px;
   resize: vertical;
   outline: none;
+  margin-bottom: 15px;
 }
 
 textarea:focus {
   border-color: #2563eb;
 }
 
-.button-row {
-  margin-top: 15px;
-  display: flex;
-  gap: 12px;
+.primary-btn,
+.sample-btn,
+.delete-btn {
+  border: none;
+  padding: 11px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-button {
+.primary-btn {
   background: #2563eb;
   color: white;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 10px;
-  font-size: 15px;
-  cursor: pointer;
 }
 
-button:hover {
+.primary-btn:hover {
   background: #1e40af;
 }
 
-button:disabled {
+.primary-btn:disabled {
   background: #94a3b8;
   cursor: not-allowed;
 }
 
-button.secondary {
-  background: #64748b;
+.sample-btn {
+  background: #e0ecff;
+  color: #1e3a8a;
 }
 
-button.secondary:hover {
-  background: #475569;
+.delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
 }
 
 .result-card {
   border-left: 6px solid #2563eb;
 }
 
-.grid {
+.result-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }
 
-.grid div {
+.result-grid div {
   background: #f8fafc;
   padding: 16px;
   border-radius: 12px;
 }
 
-.grid span {
+.result-grid span {
   display: block;
   font-size: 13px;
   color: #64748b;
   margin-bottom: 6px;
 }
 
-.grid strong {
+.result-grid strong {
   font-size: 16px;
 }
 
-.info-block {
+.info-box {
   margin-top: 20px;
   background: #f8fafc;
   padding: 16px;
   border-radius: 12px;
 }
 
-.info-block h3 {
+.info-box h3 {
   margin-top: 0;
   color: #334155;
 }
@@ -151,18 +158,46 @@ button.secondary:hover {
   font-size: 14px;
 }
 
+.job-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.job-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.job-card h3 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+
 a {
   color: #2563eb;
   text-decoration: none;
 }
 
 @media (max-width: 700px) {
-  .grid {
+  .result-grid,
+  .job-card {
     grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
 
   .header h1 {
     font-size: 28px;
   }
 }
-EOF
