@@ -278,7 +278,8 @@ const evaluateMockAnswer = async () => {
           <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button onClick={() => setActiveTab("resume")}>Resume Analyzer</button>
           <button onClick={() => setActiveTab("interview")}>Interview Prep</button>
-          <button onClick={() => setActiveTab("mock")}>Mock Interview</button>
+          <button onClick={() => setActiveTab("mock")}> Mock Interview</button>
+          <button onClick={() => setActiveTab("calendar")}>Calendar</button>
           <button onClick={() => setActiveTab("applications")}>Applications</button>
         </div>
 
@@ -607,6 +608,42 @@ const evaluateMockAnswer = async () => {
             <p key={index}>🎯 {item}</p>
           ))}
         </div>
+      </div>
+    )}
+  </section>
+)}
+{activeTab === "calendar" && (
+  <section className="card">
+    <h2>Placement Calendar</h2>
+
+    {jobs.length === 0 ? (
+      <p>No placement posts available.</p>
+    ) : (
+      <div className="job-list">
+        {[...jobs]
+          .sort((a, b) => {
+            const dateA = new Date(a.deadline);
+            const dateB = new Date(b.deadline);
+            return dateA - dateB;
+          })
+          .map((job) => (
+            <div className="job-card" key={job.id}>
+              <h3>{job.companyName}</h3>
+
+              <p>
+                <b>Role:</b> {job.roleName}
+              </p>
+
+              <p>
+                <b>Deadline:</b> {job.deadline}
+              </p>
+
+              <p>
+                <b>Status:</b>{" "}
+                {getDeadlineStatus(job.deadline)}
+              </p>
+            </div>
+          ))}
       </div>
     )}
   </section>
