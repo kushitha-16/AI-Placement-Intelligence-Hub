@@ -247,3 +247,34 @@ select {
 .tabs button:hover {
   background: #bfdbfe;
 }
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.analytics-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 18px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.analytics-card h3 {
+  font-size: 32px;
+  color: #1e3a8a;
+  margin: 0;
+}
+
+.analytics-card p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-weight: bold;
+}
+
+@media (max-width: 700px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}

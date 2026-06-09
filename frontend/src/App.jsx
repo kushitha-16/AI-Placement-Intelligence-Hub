@@ -19,7 +19,14 @@ function App() {
   const [matchResult, setMatchResult] = useState(null);
 
   const [interviewQuestions, setInterviewQuestions] = useState(null);
-
+  const totalJobs = jobs.length;
+const appliedCount = jobs.filter((job) => job.applicationStatus === "Applied").length;
+const shortlistedCount = jobs.filter((job) => job.applicationStatus === "Shortlisted").length;
+const interviewCount = jobs.filter((job) => job.applicationStatus === "Interview").length;
+const rejectedCount = jobs.filter((job) => job.applicationStatus === "Rejected").length;
+const notAppliedCount = jobs.filter(
+  (job) => !job.applicationStatus || job.applicationStatus === "Not Applied"
+).length;
   const samplePost = `Greetings from Amazon India!
 
 We are writing to invite eligible students from your institution to register for Amazon ML Summer School 2026.
@@ -175,7 +182,41 @@ Program details:
         </div>
 
         {activeTab === "dashboard" && (
-          <>
+          <><section className="card">
+  <h2>Placement Analytics Dashboard</h2>
+
+  <div className="analytics-grid">
+    <div className="analytics-card">
+      <h3>{totalJobs}</h3>
+      <p>Total Opportunities</p>
+    </div>
+
+    <div className="analytics-card">
+      <h3>{notAppliedCount}</h3>
+      <p>Not Applied</p>
+    </div>
+
+    <div className="analytics-card">
+      <h3>{appliedCount}</h3>
+      <p>Applied</p>
+    </div>
+
+    <div className="analytics-card">
+      <h3>{shortlistedCount}</h3>
+      <p>Shortlisted</p>
+    </div>
+
+    <div className="analytics-card">
+      <h3>{interviewCount}</h3>
+      <p>Interview</p>
+    </div>
+
+    <div className="analytics-card">
+      <h3>{rejectedCount}</h3>
+      <p>Rejected</p>
+    </div>
+  </div>
+</section>
             <section className="card">
               <div className="section-title">
                 <h2>Placement Post Analyzer</h2>
