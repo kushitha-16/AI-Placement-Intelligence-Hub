@@ -7,6 +7,10 @@ function App() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [resumeFile, setResumeFile] = useState(null);
+  const [resumeResult, setResumeResult] = useState(null);
+  const [resumeLoading, setResumeLoading] = useState(false);
+
   const samplePost = `Greetings from Amazon India!
 
 We are writing to invite eligible students from your institution to register for Amazon ML Summer School 2026.
@@ -66,6 +70,37 @@ Program details:
     }
   };
 
+  const uploadResume = async () => {
+    if (!resumeFile) {
+      alert("Please select a resume PDF first.");
+      return;
+    }
+
+    try {
+      setResumeLoading(true);
+
+      const formData = new FormData();
+      formData.append("file", resumeFile);
+
+      const response = await fetch("http://localhost:8080/api/resumes/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error("Resume upload failed");
+      }
+
+      const data = await response.json();
+      setResumeResult(data);
+    } catch (error) {
+      alert("Resume upload failed. Check backend and PDF file.");
+      console.error(error);
+    } finally {
+      setResumeLoading(false);
+    }
+  };
+
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
@@ -91,7 +126,7 @@ Program details:
     <div className="page">
       <header className="header">
         <h1>AI Placement Intelligence Hub</h1>
-        <p>Analyze placement posts, extract job details, and track opportunities.</p>
+        <p>Analyze placement posts, extract job details, upload resumes, and track opportunities.</p>
       </header>
 
       <main className="container">
@@ -112,6 +147,36 @@ Program details:
           <button className="primary-btn" onClick={analyzePost} disabled={loading}>
             {loading ? "Analyzing..." : "Analyze Placement Post"}
           </button>
+        </section>
+
+        <section className="card">
+          <h2>Resume Skill Extractor</h2>
+
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setResumeFile(e.target.files[0])}
+          />
+
+          <br />
+          <br />
+
+          <button className="primary-btn" onClick={uploadResume} disabled={resumeLoading}>
+            {resumeLoading ? "Uploading..." : "Upload Resume"}
+          </button>
+
+          {resumeResult && (
+            <div className="info-box">
+              <h3>Extracted Resume Skills</h3>
+              <p><b>File:</b> {resumeResult.fileName}</p>
+
+              <div className="tags">
+                {resumeResult.extractedSkills?.map((skill, index) => (
+                  <span key={index}>{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         {result && (
