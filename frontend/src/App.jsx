@@ -248,6 +248,12 @@ Program details:
                   <span key={index}>{skill}</span>
                 ))}
               </div>
+              <h3>Personalized Study Plan</h3>
+<div className="study-plan">
+  {matchResult.studyPlan?.map((item, index) => (
+    <p key={index}>{item}</p>
+  ))}
+</div>
             </div>
           )}
         </section>

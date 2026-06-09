@@ -10,18 +10,21 @@ public class MatchResponse {
     private double matchScore;
     private List<String> matchedSkills;
     private List<String> missingSkills;
+    private List<String> studyPlan;
 
     public MatchResponse() {
     }
 
     public MatchResponse(String companyName, String roleName, String resumeFileName,
-                         double matchScore, List<String> matchedSkills, List<String> missingSkills) {
+                         double matchScore, List<String> matchedSkills,
+                         List<String> missingSkills, List<String> studyPlan) {
         this.companyName = companyName;
         this.roleName = roleName;
         this.resumeFileName = resumeFileName;
         this.matchScore = matchScore;
         this.matchedSkills = matchedSkills;
         this.missingSkills = missingSkills;
+        this.studyPlan = studyPlan;
     }
 
     public String getCompanyName() {
@@ -46,5 +49,9 @@ public class MatchResponse {
 
     public List<String> getMissingSkills() {
         return missingSkills;
+    }
+
+    public List<String> getStudyPlan() {
+        return studyPlan;
     }
 }
