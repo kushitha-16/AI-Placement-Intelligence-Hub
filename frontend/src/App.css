@@ -227,3 +227,23 @@ select {
   color: #9a3412;
   font-weight: 500;
 }
+.tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  padding: 12px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #e0ecff;
+  color: #1e3a8a;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  background: #bfdbfe;
+}

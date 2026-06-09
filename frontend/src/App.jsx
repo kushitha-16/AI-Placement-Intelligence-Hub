@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
   const [postText, setPostText] = useState("");
   const [result, setResult] = useState(null);
   const [jobs, setJobs] = useState([]);
@@ -59,12 +61,9 @@ Program details:
 
     try {
       setLoading(true);
-
       const response = await fetch("http://localhost:8080/api/jobs/analyze", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ postText })
       });
 
@@ -72,7 +71,7 @@ Program details:
       setResult(data);
       setPostText("");
       fetchJobs();
-    } catch (error) {
+    } catch {
       alert("Backend not connected.");
     } finally {
       setLoading(false);
@@ -87,7 +86,6 @@ Program details:
 
     try {
       setResumeLoading(true);
-
       const formData = new FormData();
       formData.append("file", resumeFile);
 
@@ -99,7 +97,7 @@ Program details:
       const data = await response.json();
       setResumeResult(data);
       fetchResumes();
-    } catch (error) {
+    } catch {
       alert("Resume upload failed.");
     } finally {
       setResumeLoading(false);
@@ -114,9 +112,7 @@ Program details:
 
     const response = await fetch("http://localhost:8080/api/match", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         jobPostId: selectedJobId,
         resumeId: selectedResumeId
@@ -141,6 +137,16 @@ Program details:
     setInterviewQuestions(data);
   };
 
+  const updateJobStatus = async (id, status) => {
+    await fetch(`http://localhost:8080/api/jobs/${id}/status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status })
+    });
+
+    fetchJobs();
+  };
+
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
@@ -161,190 +167,278 @@ Program details:
       </header>
 
       <main className="container">
-        <section className="card">
-          <div className="section-title">
-            <h2>Placement Post Analyzer</h2>
-            <button className="sample-btn" onClick={() => setPostText(samplePost)}>
-              Use Sample
-            </button>
-          </div>
+        <div className="tabs">
+          <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
+          <button onClick={() => setActiveTab("resume")}>Resume Analyzer</button>
+          <button onClick={() => setActiveTab("interview")}>Interview Prep</button>
+          <button onClick={() => setActiveTab("applications")}>Applications</button>
+        </div>
 
-          <textarea
-            value={postText}
-            onChange={(e) => setPostText(e.target.value)}
-            placeholder="Paste placement post here..."
-          />
-
-          <button className="primary-btn" onClick={analyzePost} disabled={loading}>
-            {loading ? "Analyzing..." : "Analyze Placement Post"}
-          </button>
-        </section>
-
-        <section className="card">
-          <h2>Resume Skill Extractor</h2>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setResumeFile(e.target.files[0])}
-          />
-
-          <br />
-          <br />
-
-          <button className="primary-btn" onClick={uploadResume} disabled={resumeLoading}>
-            {resumeLoading ? "Uploading..." : "Upload Resume"}
-          </button>
-
-          {resumeResult && (
-            <div className="info-box">
-              <h3>Extracted Resume Skills</h3>
-              <p><b>File:</b> {resumeResult.fileName}</p>
-
-              <div className="tags">
-                {resumeResult.extractedSkills?.map((skill, index) => (
-                  <span key={index}>{skill}</span>
-                ))}
-              </div>
-            </div>
-          )}
-        </section>
-
-        <section className="card">
-          <h2>Resume vs Job Match Score</h2>
-
-          <label>Select Job Post</label>
-          <select value={selectedJobId} onChange={(e) => setSelectedJobId(e.target.value)}>
-            <option value="">-- Select Job --</option>
-            {jobs.map((job) => (
-              <option key={job.id} value={job.id}>
-                {job.companyName} - {job.roleName}
-              </option>
-            ))}
-          </select>
-
-          <br />
-          <br />
-
-          <label>Select Resume</label>
-          <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}>
-            <option value="">-- Select Resume --</option>
-            {resumes.map((resume) => (
-              <option key={resume.id} value={resume.id}>
-                {resume.fileName}
-              </option>
-            ))}
-          </select>
-
-          <br />
-          <br />
-
-          <button className="primary-btn" onClick={matchResumeWithJob}>
-            Check Match Score
-          </button>
-
-          <br />
-          <br />
-
-          <button className="primary-btn" onClick={generateInterviewQuestions}>
-            Generate Interview Questions
-          </button>
-
-          {matchResult && (
-            <div className="info-box">
-              <h3>Match Result</h3>
-              <p><b>Company:</b> {matchResult.companyName}</p>
-              <p><b>Role:</b> {matchResult.roleName}</p>
-              <p><b>Resume:</b> {matchResult.resumeFileName}</p>
-              <h2>{matchResult.matchScore}% Match</h2>
-
-              <h3>Matched Skills</h3>
-              <div className="tags">
-                {matchResult.matchedSkills?.map((skill, index) => (
-                  <span key={index}>{skill}</span>
-                ))}
+        {activeTab === "dashboard" && (
+          <>
+            <section className="card">
+              <div className="section-title">
+                <h2>Placement Post Analyzer</h2>
+                <button className="sample-btn" onClick={() => setPostText(samplePost)}>
+                  Use Sample
+                </button>
               </div>
 
-              <h3>Missing Skills</h3>
-              <div className="tags missing">
-                {matchResult.missingSkills?.map((skill, index) => (
-                  <span key={index}>{skill}</span>
-                ))}
+              <textarea
+                value={postText}
+                onChange={(e) => setPostText(e.target.value)}
+                placeholder="Paste placement post here..."
+              />
+
+              <button className="primary-btn" onClick={analyzePost} disabled={loading}>
+                {loading ? "Analyzing..." : "Analyze Placement Post"}
+              </button>
+            </section>
+
+            {result && (
+              <section className="card result-card">
+                <h2>Latest Extracted Result</h2>
+                <p><b>Company:</b> {result.companyName}</p>
+                <p><b>Role:</b> {result.roleName}</p>
+                <p><b>Deadline:</b> {result.deadline}</p>
+                <p><b>Eligibility:</b> {result.eligibility}</p>
+                <p><b>Skills:</b> {result.requiredSkills?.join(", ")}</p>
+              </section>
+            )}
+
+            <section className="card">
+              <div className="section-title">
+                <h2>Saved Placement Posts</h2>
+                <button className="sample-btn" onClick={fetchJobs}>Refresh</button>
               </div>
 
-              <h3>Personalized Study Plan</h3>
-              <div className="study-plan">
-                {matchResult.studyPlan?.map((item, index) => (
-                  <p key={index}>{item}</p>
+              {jobs.length === 0 ? (
+                <p>No saved placement posts yet.</p>
+              ) : (
+                <div className="job-list">
+                  {jobs.map((job) => (
+                    <div className="job-card" key={job.id}>
+                      <div>
+                        <h3>{job.companyName}</h3>
+                        <p><b>Role:</b> {job.roleName}</p>
+                        <p><b>Deadline:</b> {job.deadline}</p>
+                        <p><b>Skills:</b> {job.requiredSkills}</p>
+                        <p><b>Status:</b> {job.applicationStatus || "Not Applied"}</p>
+                      </div>
+
+                      <button className="delete-btn" onClick={() => deleteJob(job.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {activeTab === "resume" && (
+          <>
+            <section className="card">
+              <h2>Resume Skill Extractor</h2>
+
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => setResumeFile(e.target.files[0])}
+              />
+
+              <br />
+              <br />
+
+              <button className="primary-btn" onClick={uploadResume} disabled={resumeLoading}>
+                {resumeLoading ? "Uploading..." : "Upload Resume"}
+              </button>
+
+              {resumeResult && (
+                <div className="info-box">
+                  <h3>Extracted Resume Skills</h3>
+                  <p><b>File:</b> {resumeResult.fileName}</p>
+
+                  <div className="tags">
+                    {resumeResult.extractedSkills?.map((skill, index) => (
+                      <span key={index}>{skill}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <section className="card">
+              <h2>Resume vs Job Match Score</h2>
+
+              <label>Select Job Post</label>
+              <select value={selectedJobId} onChange={(e) => setSelectedJobId(e.target.value)}>
+                <option value="">-- Select Job --</option>
+                {jobs.map((job) => (
+                  <option key={job.id} value={job.id}>
+                    {job.companyName} - {job.roleName}
+                  </option>
                 ))}
-              </div>
+              </select>
 
-              <h3>Resume Improvement Suggestions</h3>
-              <div className="suggestions-box">
-                {matchResult.resumeSuggestions?.map((item, index) => (
-                  <p key={index}>✅ {item}</p>
+              <br /><br />
+
+              <label>Select Resume</label>
+              <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}>
+                <option value="">-- Select Resume --</option>
+                {resumes.map((resume) => (
+                  <option key={resume.id} value={resume.id}>
+                    {resume.fileName}
+                  </option>
                 ))}
-              </div>
-            </div>
-          )}
+              </select>
 
-          {interviewQuestions && (
-            <div className="info-box">
-              <h3>Interview Questions for {interviewQuestions.companyName}</h3>
+              <br /><br />
 
-              <h4>Technical Questions</h4>
-              <ul>
-                {interviewQuestions.technicalQuestions?.map((q, index) => (
-                  <li key={index}>{q}</li>
-                ))}
-              </ul>
+              <button className="primary-btn" onClick={matchResumeWithJob}>
+                Check Match Score
+              </button>
 
-              <h4>HR Questions</h4>
-              <ul>
-                {interviewQuestions.hrQuestions?.map((q, index) => (
-                  <li key={index}>{q}</li>
-                ))}
-              </ul>
+              {matchResult && (
+                <div className="info-box">
+                  <h3>Match Result</h3>
+                  <p><b>Company:</b> {matchResult.companyName}</p>
+                  <p><b>Role:</b> {matchResult.roleName}</p>
+                  <p><b>Resume:</b> {matchResult.resumeFileName}</p>
+                  <h2>{matchResult.matchScore}% Match</h2>
 
-              <h4>Project Questions</h4>
-              <ul>
-                {interviewQuestions.projectQuestions?.map((q, index) => (
-                  <li key={index}>{q}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </section>
-
-        <section className="card">
-          <div className="section-title">
-            <h2>Saved Placement Posts</h2>
-            <button className="sample-btn" onClick={fetchJobs}>
-              Refresh
-            </button>
-          </div>
-
-          {jobs.length === 0 ? (
-            <p>No saved placement posts yet.</p>
-          ) : (
-            <div className="job-list">
-              {jobs.map((job) => (
-                <div className="job-card" key={job.id}>
-                  <div>
-                    <h3>{job.companyName}</h3>
-                    <p><b>Role:</b> {job.roleName}</p>
-                    <p><b>Deadline:</b> {job.deadline}</p>
-                    <p><b>Skills:</b> {job.requiredSkills}</p>
+                  <h3>Matched Skills</h3>
+                  <div className="tags">
+                    {matchResult.matchedSkills?.map((skill, index) => (
+                      <span key={index}>{skill}</span>
+                    ))}
                   </div>
 
-                  <button className="delete-btn" onClick={() => deleteJob(job.id)}>
-                    Delete
-                  </button>
+                  <h3>Missing Skills</h3>
+                  <div className="tags missing">
+                    {matchResult.missingSkills?.map((skill, index) => (
+                      <span key={index}>{skill}</span>
+                    ))}
+                  </div>
+
+                  <h3>Personalized Study Plan</h3>
+                  <div className="study-plan">
+                    {matchResult.studyPlan?.map((item, index) => (
+                      <p key={index}>{item}</p>
+                    ))}
+                  </div>
+
+                  <h3>Resume Improvement Suggestions</h3>
+                  <div className="suggestions-box">
+                    {matchResult.resumeSuggestions?.map((item, index) => (
+                      <p key={index}>✅ {item}</p>
+                    ))}
+                  </div>
                 </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {activeTab === "interview" && (
+          <section className="card">
+            <h2>Interview Prep</h2>
+
+            <label>Select Job Post</label>
+            <select value={selectedJobId} onChange={(e) => setSelectedJobId(e.target.value)}>
+              <option value="">-- Select Job --</option>
+              {jobs.map((job) => (
+                <option key={job.id} value={job.id}>
+                  {job.companyName} - {job.roleName}
+                </option>
               ))}
-            </div>
-          )}
-        </section>
+            </select>
+
+            <br /><br />
+
+            <label>Select Resume</label>
+            <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}>
+              <option value="">-- Select Resume --</option>
+              {resumes.map((resume) => (
+                <option key={resume.id} value={resume.id}>
+                  {resume.fileName}
+                </option>
+              ))}
+            </select>
+
+            <br /><br />
+
+            <button className="primary-btn" onClick={generateInterviewQuestions}>
+              Generate Interview Questions
+            </button>
+
+            {interviewQuestions && (
+              <div className="info-box">
+                <h3>Interview Questions for {interviewQuestions.companyName}</h3>
+
+                <h4>Technical Questions</h4>
+                <ul>
+                  {interviewQuestions.technicalQuestions?.map((q, index) => (
+                    <li key={index}>{q}</li>
+                  ))}
+                </ul>
+
+                <h4>HR Questions</h4>
+                <ul>
+                  {interviewQuestions.hrQuestions?.map((q, index) => (
+                    <li key={index}>{q}</li>
+                  ))}
+                </ul>
+
+                <h4>Project Questions</h4>
+                <ul>
+                  {interviewQuestions.projectQuestions?.map((q, index) => (
+                    <li key={index}>{q}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        )}
+
+        {activeTab === "applications" && (
+          <section className="card">
+            <h2>Application Status Tracker</h2>
+
+            {jobs.length === 0 ? (
+              <p>No placement posts available.</p>
+            ) : (
+              <div className="job-list">
+                {jobs.map((job) => (
+                  <div className="job-card" key={job.id}>
+                    <div>
+                      <h3>{job.companyName}</h3>
+                      <p><b>Role:</b> {job.roleName}</p>
+                      <p><b>Deadline:</b> {job.deadline}</p>
+                      <p><b>Status:</b> {job.applicationStatus || "Not Applied"}</p>
+
+                      <select
+                        value={job.applicationStatus || "Not Applied"}
+                        onChange={(e) => updateJobStatus(job.id, e.target.value)}
+                      >
+                        <option>Not Applied</option>
+                        <option>Applied</option>
+                        <option>Shortlisted</option>
+                        <option>Interview</option>
+                        <option>Rejected</option>
+                      </select>
+                    </div>
+
+                    <button className="delete-btn" onClick={() => deleteJob(job.id)}>
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );

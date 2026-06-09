@@ -32,10 +32,13 @@ public class JobPost {
     @Column(length = 5000)
     private String originalPost;
 
+    private String applicationStatus = "Not Applied";
+
     private LocalDateTime createdAt;
 
     public JobPost() {
         this.createdAt = LocalDateTime.now();
+        this.applicationStatus = "Not Applied";
     }
 
     public JobPost(String companyName, String roleName, String eligibility, String requiredSkills,
@@ -48,6 +51,7 @@ public class JobPost {
         this.deadline = deadline;
         this.applyLink = applyLink;
         this.originalPost = originalPost;
+        this.applicationStatus = "Not Applied";
         this.createdAt = LocalDateTime.now();
     }
 
@@ -85,6 +89,10 @@ public class JobPost {
 
     public String getOriginalPost() {
         return originalPost;
+    }
+
+    public String getApplicationStatus() {
+        return applicationStatus;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -125,6 +133,10 @@ public class JobPost {
 
     public void setOriginalPost(String originalPost) {
         this.originalPost = originalPost;
+    }
+
+    public void setApplicationStatus(String applicationStatus) {
+        this.applicationStatus = applicationStatus;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {

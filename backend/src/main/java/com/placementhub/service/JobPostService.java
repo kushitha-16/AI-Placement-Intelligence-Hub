@@ -67,9 +67,18 @@ public class JobPostService {
     public List<JobPost> getAllJobPosts() {
         return jobPostRepository.findAll();
     }
+
     public void deleteJobPost(Long id) {
-    jobPostRepository.deleteById(id);
-}
+        jobPostRepository.deleteById(id);
+    }
+
+    public JobPost updateApplicationStatus(Long id, String status) {
+        JobPost jobPost = jobPostRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job post not found"));
+
+        jobPost.setApplicationStatus(status);
+        return jobPostRepository.save(jobPost);
+    }
 
     private String extractCompanyName(String text) {
         String lowerText = text.toLowerCase();
