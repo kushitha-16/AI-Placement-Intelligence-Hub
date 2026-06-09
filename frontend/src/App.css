@@ -201,3 +201,16 @@ a {
     font-size: 28px;
   }
 }
+select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  margin-top: 8px;
+  font-size: 15px;
+}
+
+.missing span {
+  background: #fee2e2;
+  color: #b91c1c;
+}

@@ -5,11 +5,16 @@ function App() {
   const [postText, setPostText] = useState("");
   const [result, setResult] = useState(null);
   const [jobs, setJobs] = useState([]);
+  const [resumes, setResumes] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [resumeFile, setResumeFile] = useState(null);
   const [resumeResult, setResumeResult] = useState(null);
   const [resumeLoading, setResumeLoading] = useState(false);
+
+  const [selectedJobId, setSelectedJobId] = useState("");
+  const [selectedResumeId, setSelectedResumeId] = useState("");
+  const [matchResult, setMatchResult] = useState(null);
 
   const samplePost = `Greetings from Amazon India!
 
@@ -29,16 +34,19 @@ Program details:
 
   useEffect(() => {
     fetchJobs();
+    fetchResumes();
   }, []);
 
   const fetchJobs = async () => {
-    try {
-      const response = await fetch("http://localhost:8080/api/jobs");
-      const data = await response.json();
-      setJobs(data);
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    }
+    const response = await fetch("http://localhost:8080/api/jobs");
+    const data = await response.json();
+    setJobs(data);
+  };
+
+  const fetchResumes = async () => {
+    const response = await fetch("http://localhost:8080/api/resumes");
+    const data = await response.json();
+    setResumes(data);
   };
 
   const analyzePost = async () => {
@@ -63,8 +71,7 @@ Program details:
       setPostText("");
       fetchJobs();
     } catch (error) {
-      alert("Backend not connected. Start Spring Boot first.");
-      console.error(error);
+      alert("Backend not connected.");
     } finally {
       setLoading(false);
     }
@@ -87,53 +94,61 @@ Program details:
         body: formData
       });
 
-      if (!response.ok) {
-        throw new Error("Resume upload failed");
-      }
-
       const data = await response.json();
       setResumeResult(data);
+      fetchResumes();
     } catch (error) {
-      alert("Resume upload failed. Check backend and PDF file.");
-      console.error(error);
+      alert("Resume upload failed.");
     } finally {
       setResumeLoading(false);
     }
+  };
+
+  const matchResumeWithJob = async () => {
+    if (!selectedJobId || !selectedResumeId) {
+      alert("Please select both job post and resume.");
+      return;
+    }
+
+    const response = await fetch("http://localhost:8080/api/match", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        jobPostId: selectedJobId,
+        resumeId: selectedResumeId
+      })
+    });
+
+    const data = await response.json();
+    setMatchResult(data);
   };
 
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
 
-    try {
-      await fetch(`http://localhost:8080/api/jobs/${id}`, {
-        method: "DELETE"
-      });
+    await fetch(`http://localhost:8080/api/jobs/${id}`, {
+      method: "DELETE"
+    });
 
-      fetchJobs();
-      setResult(null);
-    } catch (error) {
-      alert("Delete failed.");
-      console.error(error);
-    }
-  };
-
-  const useSample = () => {
-    setPostText(samplePost);
+    fetchJobs();
+    setResult(null);
   };
 
   return (
     <div className="page">
       <header className="header">
         <h1>AI Placement Intelligence Hub</h1>
-        <p>Analyze placement posts, extract job details, upload resumes, and track opportunities.</p>
+        <p>Analyze posts, upload resumes, and check placement readiness.</p>
       </header>
 
       <main className="container">
         <section className="card">
           <div className="section-title">
             <h2>Placement Post Analyzer</h2>
-            <button className="sample-btn" onClick={useSample}>
+            <button className="sample-btn" onClick={() => setPostText(samplePost)}>
               Use Sample
             </button>
           </div>
@@ -141,7 +156,7 @@ Program details:
           <textarea
             value={postText}
             onChange={(e) => setPostText(e.target.value)}
-            placeholder="Paste Telegram / WhatsApp / Email placement post here..."
+            placeholder="Paste placement post here..."
           />
 
           <button className="primary-btn" onClick={analyzePost} disabled={loading}>
@@ -179,60 +194,63 @@ Program details:
           )}
         </section>
 
-        {result && (
-          <section className="card result-card">
-            <h2>Latest Extracted Result</h2>
+        <section className="card">
+          <h2>Resume vs Job Match Score</h2>
 
-            <div className="result-grid">
-              <div>
-                <span>Company</span>
-                <strong>{result.companyName}</strong>
-              </div>
+          <label>Select Job Post</label>
+          <select value={selectedJobId} onChange={(e) => setSelectedJobId(e.target.value)}>
+            <option value="">-- Select Job --</option>
+            {jobs.map((job) => (
+              <option key={job.id} value={job.id}>
+                {job.companyName} - {job.roleName}
+              </option>
+            ))}
+          </select>
 
-              <div>
-                <span>Role / Program</span>
-                <strong>{result.roleName}</strong>
-              </div>
+          <br />
+          <br />
 
-              <div>
-                <span>Deadline</span>
-                <strong>{result.deadline}</strong>
-              </div>
+          <label>Select Resume</label>
+          <select value={selectedResumeId} onChange={(e) => setSelectedResumeId(e.target.value)}>
+            <option value="">-- Select Resume --</option>
+            {resumes.map((resume) => (
+              <option key={resume.id} value={resume.id}>
+                {resume.fileName}
+              </option>
+            ))}
+          </select>
 
-              <div>
-                <span>Apply Link</span>
-                <strong>
-                  {result.applyLink ? (
-                    <a href={result.applyLink} target="_blank" rel="noreferrer">
-                      Open Link
-                    </a>
-                  ) : (
-                    "Not found"
-                  )}
-                </strong>
-              </div>
-            </div>
+          <br />
+          <br />
 
+          <button className="primary-btn" onClick={matchResumeWithJob}>
+            Check Match Score
+          </button>
+
+          {matchResult && (
             <div className="info-box">
-              <h3>Eligibility</h3>
-              <p>{result.eligibility}</p>
-            </div>
+              <h3>Match Result</h3>
+              <p><b>Company:</b> {matchResult.companyName}</p>
+              <p><b>Role:</b> {matchResult.roleName}</p>
+              <p><b>Resume:</b> {matchResult.resumeFileName}</p>
+              <h2>{matchResult.matchScore}% Match</h2>
 
-            <div className="info-box">
-              <h3>Skills / Topics</h3>
+              <h3>Matched Skills</h3>
               <div className="tags">
-                {result.requiredSkills?.map((skill, index) => (
+                {matchResult.matchedSkills?.map((skill, index) => (
+                  <span key={index}>{skill}</span>
+                ))}
+              </div>
+
+              <h3>Missing Skills</h3>
+              <div className="tags missing">
+                {matchResult.missingSkills?.map((skill, index) => (
                   <span key={index}>{skill}</span>
                 ))}
               </div>
             </div>
-
-            <div className="info-box">
-              <h3>Selection Rounds</h3>
-              <p>{result.selectionRounds}</p>
-            </div>
-          </section>
-        )}
+          )}
+        </section>
 
         <section className="card">
           <div className="section-title">
