@@ -214,3 +214,16 @@ select {
   background: #fee2e2;
   color: #b91c1c;
 }
+.suggestions-box {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
+.suggestions-box p {
+  margin: 8px 0;
+  color: #9a3412;
+  font-weight: 500;
+}

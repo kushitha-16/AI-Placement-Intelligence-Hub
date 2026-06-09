@@ -249,9 +249,15 @@ Program details:
                 ))}
               </div>
               <h3>Personalized Study Plan</h3>
-<div className="study-plan">
-  {matchResult.studyPlan?.map((item, index) => (
-    <p key={index}>{item}</p>
+             <div className="study-plan">
+              {matchResult.studyPlan?.map((item, index) => (
+             <p key={index}>{item}</p>
+              ))}
+            </div>
+            <h3>Resume Improvement Suggestions</h3>
+<div className="suggestions-box">
+  {matchResult.resumeSuggestions?.map((item, index) => (
+    <p key={index}>✅ {item}</p>
   ))}
 </div>
             </div>
