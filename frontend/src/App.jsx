@@ -19,6 +19,9 @@ function App() {
   const [matchResult, setMatchResult] = useState(null);
 
   const [interviewQuestions, setInterviewQuestions] = useState(null);
+  const [mockQuestion, setMockQuestion] = useState("Tell me about yourself.");
+const [mockAnswer, setMockAnswer] = useState("");
+const [mockResult, setMockResult] = useState(null);
   const totalJobs = jobs.length;
 const appliedCount = jobs.filter((job) => job.applicationStatus === "Applied").length;
 const shortlistedCount = jobs.filter((job) => job.applicationStatus === "Shortlisted").length;
@@ -231,6 +234,26 @@ const getCompanyRoadmap = (companyName) => {
     "Attend one mock interview."
   ];
 };
+const evaluateMockAnswer = async () => {
+  if (!mockAnswer.trim()) {
+    alert("Please type your answer first.");
+    return;
+  }
+
+  const response = await fetch("http://localhost:8080/api/mock-interview/evaluate", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      question: mockQuestion,
+      answer: mockAnswer
+    })
+  });
+
+  const data = await response.json();
+  setMockResult(data);
+};
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
     if (!confirmDelete) return;
@@ -255,6 +278,7 @@ const getCompanyRoadmap = (companyName) => {
           <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button onClick={() => setActiveTab("resume")}>Resume Analyzer</button>
           <button onClick={() => setActiveTab("interview")}>Interview Prep</button>
+          <button onClick={() => setActiveTab("mock")}>Mock Interview</button>
           <button onClick={() => setActiveTab("applications")}>Applications</button>
         </div>
 
@@ -534,43 +558,97 @@ const getCompanyRoadmap = (companyName) => {
           </section>
         )}
 
-        {activeTab === "applications" && (
-          <section className="card">
-            <h2>Application Status Tracker</h2>
+       {activeTab === "mock" && (
+  <section className="card">
+    <h2>AI Mock Interview Simulator</h2>
 
-            {jobs.length === 0 ? (
-              <p>No placement posts available.</p>
-            ) : (
-              <div className="job-list">
-                {jobs.map((job) => (
-                  <div className="job-card" key={job.id}>
-                    <div>
-                      <h3>{job.companyName}</h3>
-                      <p><b>Role:</b> {job.roleName}</p>
-                      <p><b>Deadline:</b> {job.deadline}</p>
-                      <p><b>Status:</b> {job.applicationStatus || "Not Applied"}</p>
+    <label>Select Question</label>
+    <select
+      value={mockQuestion}
+      onChange={(e) => setMockQuestion(e.target.value)}
+    >
+      <option>Tell me about yourself.</option>
+      <option>Why should we hire you?</option>
+      <option>Explain your best project.</option>
+      <option>What are your strengths and weaknesses?</option>
+      <option>Why do you want to join this company?</option>
+    </select>
 
-                      <select
-                        value={job.applicationStatus || "Not Applied"}
-                        onChange={(e) => updateJobStatus(job.id, e.target.value)}
-                      >
-                        <option>Not Applied</option>
-                        <option>Applied</option>
-                        <option>Shortlisted</option>
-                        <option>Interview</option>
-                        <option>Rejected</option>
-                      </select>
-                    </div>
+    <br />
+    <br />
 
-                    <button className="delete-btn" onClick={() => deleteJob(job.id)}>
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
+    <label>Your Answer</label>
+    <textarea
+      value={mockAnswer}
+      onChange={(e) => setMockAnswer(e.target.value)}
+      placeholder="Type your interview answer here..."
+    />
+
+    <button className="primary-btn" onClick={evaluateMockAnswer}>
+      Evaluate Answer
+    </button>
+
+    {mockResult && (
+      <div className="info-box">
+        <h3>Mock Interview Feedback</h3>
+
+        <h2>{mockResult.score || 0}% Score</h2>
+
+        <h3>Strengths</h3>
+        <div className="suggestions-box">
+          {mockResult.strengths?.map((item, index) => (
+            <p key={index}>✅ {item}</p>
+          ))}
+        </div>
+
+        <h3>Improvements</h3>
+        <div className="study-plan">
+          {mockResult.improvements?.map((item, index) => (
+            <p key={index}>🎯 {item}</p>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+)}
+
+{activeTab === "applications" && (
+  <section className="card">
+    <h2>Application Status Tracker</h2>
+
+    {jobs.length === 0 ? (
+      <p>No placement posts available.</p>
+    ) : (
+      <div className="job-list">
+        {jobs.map((job) => (
+          <div className="job-card" key={job.id}>
+            <div>
+              <h3>{job.companyName}</h3>
+              <p><b>Role:</b> {job.roleName}</p>
+              <p><b>Deadline:</b> {job.deadline}</p>
+              <p><b>Status:</b> {job.applicationStatus || "Not Applied"}</p>
+
+              <select
+                value={job.applicationStatus || "Not Applied"}
+                onChange={(e) => updateJobStatus(job.id, e.target.value)}
+              >
+                <option>Not Applied</option>
+                <option>Applied</option>
+                <option>Shortlisted</option>
+                <option>Interview</option>
+                <option>Rejected</option>
+              </select>
+            </div>
+
+            <button className="delete-btn" onClick={() => deleteJob(job.id)}>
+              Delete
+            </button>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+)}
       </main>
     </div>
   );
