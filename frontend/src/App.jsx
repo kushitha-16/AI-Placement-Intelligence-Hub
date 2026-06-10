@@ -30,6 +30,9 @@ const [selectedReadinessResume, setSelectedReadinessResume] = useState("");
 const [selectedTrackerCompany, setSelectedTrackerCompany] = useState("");
 const [trackerResult, setTrackerResult] = useState(null);
 
+const [selectedResourceSkill, setSelectedResourceSkill] = useState("");
+const [resourceResult, setResourceResult] = useState(null);
+
 const totalJobs = jobs.length;
 const appliedCount = jobs.filter((job) => job.applicationStatus === "Applied").length;
 const shortlistedCount = jobs.filter((job) => job.applicationStatus === "Shortlisted").length;
@@ -356,6 +359,19 @@ const getPreparationTracker = async () => {
   setTrackerResult(data);
 };
 
+const getLearningResources = async () => {
+  if (!selectedResourceSkill.trim()) {
+    alert("Please enter a skill.");
+    return;
+  }
+
+  const response = await fetch(
+    `http://localhost:8080/api/resources/${selectedResourceSkill}`
+  );
+  const data = await response.json();
+  setResourceResult(data);
+};
+
 const evaluateMockAnswer = async () => {
   if (!mockAnswer.trim()) {
     alert("Please type your answer first.");
@@ -405,6 +421,7 @@ const evaluateMockAnswer = async () => {
           <button onClick={() => setActiveTab("calendar")}>Calendar</button>
           <button onClick={() => setActiveTab("applications")}>Applications</button>
           <button onClick={() => setActiveTab("tracker")}>Preparation Tracker</button>
+          <button onClick={() => setActiveTab("resources")}>Resources</button>
         </div>
 
         {activeTab === "dashboard" && (
@@ -851,6 +868,30 @@ const evaluateMockAnswer = async () => {
     )}
   </section>
 )}
+{activeTab === "resources" && (
+  <section className="card">
+    <h2>Learning Resource Recommender</h2>
+    <label>Enter Missing Skill</label>
+    <input
+      type="text"
+      value={selectedResourceSkill}
+      onChange={(e) => setSelectedResourceSkill(e.target.value)}
+      placeholder="Example: OOPs, Aptitude, SQL, AWS"/>
+    <br /><br />
+    <button className="primary-btn" onClick={getLearningResources}>Get Resources</button>
+    {resourceResult && (
+      <div className="info-box">
+        <h3>Resources for {resourceResult.skill}</h3>
+        <div className="study-plan">
+          {resourceResult.resources?.map((item, index) => (
+            <p key={index}>📘 {item}</p>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+)}
+
 {activeTab === "applications" && (
   <section className="card">
     <h2>Application Status Tracker</h2>
