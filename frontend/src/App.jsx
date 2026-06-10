@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
 import "./App.css";
 
 function App() {
@@ -234,6 +235,94 @@ const getCompanyRoadmap = (companyName) => {
     "Attend one mock interview."
   ];
 };
+const downloadMatchReport = () => {
+  if (!matchResult) {
+    alert("Please check match score first.");
+    return;
+  }
+
+  const doc = new jsPDF();
+
+  let y = 15;
+
+  doc.setFontSize(18);
+  doc.text("AI Placement Intelligence Hub Report", 15, y);
+
+  y += 12;
+  doc.setFontSize(12);
+  doc.text(`Company: ${matchResult.companyName}`, 15, y);
+
+  y += 8;
+  doc.text(`Role: ${matchResult.roleName}`, 15, y);
+
+  y += 8;
+  doc.text(`Resume: ${matchResult.resumeFileName}`, 15, y);
+
+  y += 8;
+  doc.text(`Match Score: ${matchResult.matchScore}%`, 15, y);
+
+  y += 12;
+  doc.setFontSize(14);
+  doc.text("Matched Skills", 15, y);
+
+  y += 8;
+  doc.setFontSize(12);
+  doc.text(
+    matchResult.matchedSkills?.join(", ") || "None",
+    15,
+    y
+  );
+
+  y += 12;
+  doc.setFontSize(14);
+  doc.text("Missing Skills", 15, y);
+
+  y += 8;
+  doc.setFontSize(12);
+  doc.text(
+    matchResult.missingSkills?.join(", ") || "None",
+    15,
+    y
+  );
+
+  y += 12;
+  doc.setFontSize(14);
+  doc.text("Study Plan", 15, y);
+
+  y += 8;
+  doc.setFontSize(12);
+
+  matchResult.studyPlan?.forEach((item) => {
+    doc.text(`• ${item}`, 15, y);
+    y += 8;
+  });
+
+  y += 5;
+  doc.setFontSize(14);
+  doc.text("Resume Suggestions", 15, y);
+
+  y += 8;
+  doc.setFontSize(12);
+
+  matchResult.resumeSuggestions?.forEach((item) => {
+    doc.text(`• ${item}`, 15, y);
+    y += 8;
+  });
+
+  y += 5;
+  doc.setFontSize(14);
+  doc.text("Company Roadmap", 15, y);
+
+  y += 8;
+  doc.setFontSize(12);
+
+  getCompanyRoadmap(matchResult.companyName)?.forEach((item) => {
+    doc.text(`• ${item}`, 15, y);
+    y += 8;
+  });
+
+  doc.save("placement-match-report.pdf");
+};
 const evaluateMockAnswer = async () => {
   if (!mockAnswer.trim()) {
     alert("Please type your answer first.");
@@ -450,6 +539,9 @@ const evaluateMockAnswer = async () => {
               <button className="primary-btn" onClick={matchResumeWithJob}>
                 Check Match Score
               </button>
+              <br />
+             <br />
+             <button className="primary-btn" onClick={downloadMatchReport}>Download PDF Report</button>
 
               {matchResult && (
                 <div className="info-box">
