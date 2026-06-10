@@ -5,9 +5,6 @@ import com.placementhub.model.Resume;
 import com.placementhub.repository.ResumeRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class ReadinessService {
 
@@ -17,54 +14,49 @@ public class ReadinessService {
         this.resumeRepository = resumeRepository;
     }
 
-    public ReadinessResponse analyzeResume(Long resumeId) {
+    public ReadinessResponse calculate(Long resumeId) {
 
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new RuntimeException("Resume not found"));
 
         String skills = resume.getExtractedSkills();
+        String resumeText = resume.getResumeText().toLowerCase();
 
-        int skillCount = skills.split(",").length;
+        int technicalScore = 50;
+        int projectScore = 50;
+        int communicationScore = 70;
 
-        double technicalScore = Math.min(skillCount * 5, 100);
+        if (skills.contains("Java")) technicalScore += 10;
+        if (skills.contains("Python")) technicalScore += 10;
+        if (skills.contains("SQL")) technicalScore += 10;
+        if (skills.contains("Git")) technicalScore += 5;
 
-        double projectScore = 80;
+        if (resumeText.contains("project")) {
+            projectScore += 30;
+        }
 
-        double resumeScore = 85;
+        if (resumeText.contains("communication")) {
+            communicationScore += 10;
+        }
 
-        double overallScore =
-                (technicalScore * 0.5)
-                        + (projectScore * 0.25)
-                        + (resumeScore * 0.25);
+        int overallScore = (technicalScore + projectScore + communicationScore) / 3;
 
-        String level;
+        String status;
 
         if (overallScore >= 80) {
-            level = "Excellent";
-        } else if (overallScore >= 65) {
-            level = "Placement Ready";
+            status = "Ready for Placements";
+        } else if (overallScore >= 60) {
+            status = "Needs Improvement";
         } else {
-            level = "Needs Improvement";
+            status = "High Preparation Required";
         }
-
-        List<String> recommendations = new ArrayList<>();
-
-        if (technicalScore < 80) {
-            recommendations.add("Improve technical skills and add more technologies.");
-        }
-
-        recommendations.add("Continue solving DSA problems.");
-        recommendations.add("Practice aptitude and reasoning.");
-        recommendations.add("Prepare project explanations.");
-        recommendations.add("Attend mock interviews.");
 
         return new ReadinessResponse(
                 technicalScore,
                 projectScore,
-                resumeScore,
-                Math.round(overallScore * 100.0) / 100.0,
-                level,
-                recommendations
+                communicationScore,
+                overallScore,
+                status
         );
     }
 }

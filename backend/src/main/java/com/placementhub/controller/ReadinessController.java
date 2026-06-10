@@ -2,7 +2,6 @@ package com.placementhub.controller;
 
 import com.placementhub.dto.ReadinessResponse;
 import com.placementhub.service.ReadinessService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,11 +15,7 @@ public class ReadinessController {
     }
 
     @GetMapping("/{resumeId}")
-    public ResponseEntity<ReadinessResponse> getReadiness(
-            @PathVariable Long resumeId
-    ) {
-        return ResponseEntity.ok(
-                readinessService.analyzeResume(resumeId)
-        );
+    public ReadinessResponse getReadiness(@PathVariable Long resumeId) {
+        return readinessService.calculate(resumeId);
     }
 }

@@ -23,7 +23,14 @@ function App() {
   const [mockQuestion, setMockQuestion] = useState("Tell me about yourself.");
 const [mockAnswer, setMockAnswer] = useState("");
 const [mockResult, setMockResult] = useState(null);
-  const totalJobs = jobs.length;
+
+const [readinessResult, setReadinessResult] = useState(null);
+const [selectedReadinessResume, setSelectedReadinessResume] = useState("");
+
+const [selectedTrackerCompany, setSelectedTrackerCompany] = useState("");
+const [trackerResult, setTrackerResult] = useState(null);
+
+const totalJobs = jobs.length;
 const appliedCount = jobs.filter((job) => job.applicationStatus === "Applied").length;
 const shortlistedCount = jobs.filter((job) => job.applicationStatus === "Shortlisted").length;
 const interviewCount = jobs.filter((job) => job.applicationStatus === "Interview").length;
@@ -323,6 +330,32 @@ const downloadMatchReport = () => {
 
   doc.save("placement-match-report.pdf");
 };
+const getReadinessScore = async () => {
+  if (!selectedReadinessResume) {
+    alert("Please select a resume.");
+    return;
+  }
+  const response = await fetch(
+    `http://localhost:8080/api/readiness/${selectedReadinessResume}`
+  );
+  const data = await response.json();
+  setReadinessResult(data);
+};
+
+const getPreparationTracker = async () => {
+  if (!selectedTrackerCompany) {
+    alert("Please select a company.");
+    return;
+  }
+
+  const response = await fetch(
+    `http://localhost:8080/api/preparation/${selectedTrackerCompany}`
+  );
+
+  const data = await response.json();
+  setTrackerResult(data);
+};
+
 const evaluateMockAnswer = async () => {
   if (!mockAnswer.trim()) {
     alert("Please type your answer first.");
@@ -367,9 +400,11 @@ const evaluateMockAnswer = async () => {
           <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button onClick={() => setActiveTab("resume")}>Resume Analyzer</button>
           <button onClick={() => setActiveTab("interview")}>Interview Prep</button>
-          <button onClick={() => setActiveTab("mock")}> Mock Interview</button>
+          <button onClick={() => setActiveTab("mock")}>Mock Interview</button>
+          <button onClick={() => setActiveTab("readiness")}>Readiness</button>
           <button onClick={() => setActiveTab("calendar")}>Calendar</button>
           <button onClick={() => setActiveTab("applications")}>Applications</button>
+          <button onClick={() => setActiveTab("tracker")}>Preparation Tracker</button>
         </div>
 
         {activeTab === "dashboard" && (
@@ -704,10 +739,59 @@ const evaluateMockAnswer = async () => {
     )}
   </section>
 )}
+{activeTab === "readiness" && (
+  <section className="card">
+  <h2>Placement Readiness Dashboard</h2>
+    <label>Select Resume</label>
+    <select
+      value={selectedReadinessResume}
+      onChange={(e) =>
+        setSelectedReadinessResume(e.target.value)
+      }
+    >
+      <option value="">-- Select Resume --</option>
+      {resumes.map((resume) => (
+        <option
+          key={resume.id}
+          value={resume.id}
+        >
+          {resume.fileName}
+        </option>
+      ))}
+    </select>
+    <br />
+    <br />
+    <button className="primary-btn" onClick={getReadinessScore}>Check Readiness </button>
+    {readinessResult && (
+      <div className="info-box">
+        <h2>Overall Score:{" "}{readinessResult.overallScore}%</h2>
+        <p>
+          <b>Technical Skills:</b>
+          {" "}
+          {readinessResult.technicalScore}%
+        </p>
+        <p>
+          <b>Projects:</b>
+          {" "}
+          {readinessResult.projectScore}%
+        </p>
+        <p>
+          <b>Communication:</b>
+          {" "}
+          {readinessResult.communicationScore}%
+        </p>
+        <h3>
+          Status:
+          {" "}
+          {readinessResult.status}
+        </h3>
+      </div>
+    )}
+  </section>
+)}
 {activeTab === "calendar" && (
   <section className="card">
     <h2>Placement Calendar</h2>
-
     {jobs.length === 0 ? (
       <p>No placement posts available.</p>
     ) : (
@@ -721,15 +805,12 @@ const evaluateMockAnswer = async () => {
           .map((job) => (
             <div className="job-card" key={job.id}>
               <h3>{job.companyName}</h3>
-
               <p>
                 <b>Role:</b> {job.roleName}
               </p>
-
               <p>
                 <b>Deadline:</b> {job.deadline}
               </p>
-
               <p>
                 <b>Status:</b>{" "}
                 {getDeadlineStatus(job.deadline)}
@@ -741,6 +822,35 @@ const evaluateMockAnswer = async () => {
   </section>
 )}
 
+{activeTab === "tracker" && (
+  <section className="card">
+    <h2>Company Preparation Tracker</h2>
+    <label>Select Company</label>
+    <select
+      value={selectedTrackerCompany}
+      onChange={(e) => setSelectedTrackerCompany(e.target.value)} >
+      <option value="">-- Select Company --</option>
+      <option value="amazon">Amazon</option>
+      <option value="cognizant">Cognizant</option>
+      <option value="tcs">TCS</option>
+      <option value="infosys">Infosys</option>
+    </select>
+    <br /><br />
+    <button className="primary-btn" onClick={getPreparationTracker}>
+      Show Tracker
+    </button>
+    {trackerResult && (
+      <div className="info-box">
+        <h3>{trackerResult.companyName} Preparation Tracker</h3>
+        <h2>Progress: {trackerResult.progress}%</h2>
+        <div className="study-plan">
+          {trackerResult.topics?.map((topic, index) => (
+            <p key={index}>{topic}</p>
+          ))}
+        </div></div>
+    )}
+  </section>
+)}
 {activeTab === "applications" && (
   <section className="card">
     <h2>Application Status Tracker</h2>
