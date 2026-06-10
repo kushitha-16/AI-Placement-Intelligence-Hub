@@ -312,3 +312,40 @@ input {
   margin-top: 8px;
   font-size: 15px;
 }
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.analytics-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+}
+
+.analytics-card h3 {
+  margin: 0;
+  font-size: 32px;
+  color: #1e3a8a;
+}
+
+.analytics-card p {
+  margin: 8px 0 0;
+  color: #475569;
+  font-weight: bold;
+}
+
+@media (max-width: 900px) {
+  .analytics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}

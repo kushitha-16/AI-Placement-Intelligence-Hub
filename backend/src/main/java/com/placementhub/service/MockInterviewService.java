@@ -19,32 +19,62 @@ public class MockInterviewService {
 
     public InterviewEvaluationResponse evaluate(String answer) {
 
-        int score = 50;
+        String lowerAnswer = answer.toLowerCase();
+
+        int score = 40;
 
         List<String> strengths = new ArrayList<>();
         List<String> improvements = new ArrayList<>();
 
-        if (answer.length() > 100) {
-            score += 15;
-            strengths.add("Detailed answer");
-        }
-
-        if (answer.toLowerCase().contains("project")) {
+        if (answer.length() > 50) {
             score += 10;
-            strengths.add("Mentioned project experience");
+            strengths.add("Answer has basic detail");
         }
 
-        if (answer.toLowerCase().contains("java")) {
+        if (answer.length() > 120) {
+            score += 10;
+            strengths.add("Answer is detailed and well explained");
+        }
+
+        if (lowerAnswer.contains("pursuing") || lowerAnswer.contains("student") || lowerAnswer.contains("cse")) {
+            score += 10;
+            strengths.add("Mentioned education background");
+        }
+
+        if (lowerAnswer.contains("java") || lowerAnswer.contains("python") || lowerAnswer.contains("sql") || lowerAnswer.contains("coding")) {
             score += 10;
             strengths.add("Mentioned technical skills");
         }
 
-        if (!answer.toLowerCase().contains("skill")) {
-            improvements.add("Mention your technical skills");
+        if (lowerAnswer.contains("project") || lowerAnswer.contains("developed") || lowerAnswer.contains("application")) {
+            score += 10;
+            strengths.add("Mentioned project or development experience");
         }
 
-        if (!answer.toLowerCase().contains("goal")) {
-            improvements.add("Mention career goals");
+        if (lowerAnswer.contains("team") || lowerAnswer.contains("communication")) {
+            score += 5;
+            strengths.add("Mentioned teamwork or communication");
+        }
+
+        if (lowerAnswer.contains("goal") || lowerAnswer.contains("career") || lowerAnswer.contains("growth")) {
+            score += 5;
+            strengths.add("Mentioned career goal or growth mindset");
+        }
+
+        if (!lowerAnswer.contains("project")) {
+            improvements.add("Add one project example to make your answer stronger.");
+        }
+
+        if (!lowerAnswer.contains("java") && !lowerAnswer.contains("python") && !lowerAnswer.contains("sql")) {
+            improvements.add("Mention your technical skills like Java, Python, SQL, or web development.");
+        }
+
+        if (!lowerAnswer.contains("goal") && !lowerAnswer.contains("career")) {
+            improvements.add("End with your career goal or what kind of role you are looking for.");
+        }
+
+        if (answer.length() < 80) {
+            improvements.add("Make your answer slightly longer with education, skills, project, and goal.");
         }
 
         if (score > 100) {
