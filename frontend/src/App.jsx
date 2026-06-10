@@ -33,6 +33,8 @@ const [trackerResult, setTrackerResult] = useState(null);
 const [selectedResourceSkill, setSelectedResourceSkill] = useState("");
 const [resourceResult, setResourceResult] = useState(null);
 
+const [interviewHistory, setInterviewHistory] = useState([]);
+
 const totalJobs = jobs.length;
 const appliedCount = jobs.filter((job) => job.applicationStatus === "Applied").length;
 const shortlistedCount = jobs.filter((job) => job.applicationStatus === "Shortlisted").length;
@@ -372,6 +374,12 @@ const getLearningResources = async () => {
   setResourceResult(data);
 };
 
+const fetchInterviewHistory = async () => {
+  const response = await fetch("http://localhost:8080/api/interview-history");
+  const data = await response.json();
+  setInterviewHistory(data);
+};
+
 const evaluateMockAnswer = async () => {
   if (!mockAnswer.trim()) {
     alert("Please type your answer first.");
@@ -391,6 +399,7 @@ const evaluateMockAnswer = async () => {
 
   const data = await response.json();
   setMockResult(data);
+  fetchInterviewHistory();
 };
   const deleteJob = async (id) => {
     const confirmDelete = window.confirm("Delete this placement post?");
@@ -419,6 +428,7 @@ const evaluateMockAnswer = async () => {
           <button onClick={() => setActiveTab("mock")}>Mock Interview</button>
           <button onClick={() => setActiveTab("readiness")}>Readiness</button>
           <button onClick={() => setActiveTab("calendar")}>Calendar</button>
+          <button onClick={() => setActiveTab("history")}>Interview History</button>
           <button onClick={() => setActiveTab("applications")}>Applications</button>
           <button onClick={() => setActiveTab("tracker")}>Preparation Tracker</button>
           <button onClick={() => setActiveTab("resources")}>Resources</button>
@@ -892,6 +902,101 @@ const evaluateMockAnswer = async () => {
   </section>
 )}
 
+{activeTab === "history" && (
+  <section className="card">
+    <div className="section-title">
+      <h2>Interview History & Performance</h2>
+      <button className="sample-btn" onClick={fetchInterviewHistory}>
+        Refresh
+      </button>
+    </div>
+
+    {interviewHistory.length === 0 ? (
+      <p>No mock interview attempts yet.</p>
+    ) : (
+      <div className="job-list">
+        <div className="info-box">
+          <h3>
+            Average Score:{" "}
+            {Math.round(
+              interviewHistory.reduce((sum, item) => sum + item.score, 0) /
+                interviewHistory.length
+            )}
+            %
+          </h3>
+
+          <h3>
+            Trend:{" "}
+            {interviewHistory.length >= 2 &&
+            interviewHistory[interviewHistory.length - 1].score >
+              interviewHistory[0].score
+              ? "📈 Improving"
+              : "🔄 Keep Practicing"}
+          </h3>
+        </div>
+
+        {interviewHistory.map((item, index) => (
+          <div className="job-card" key={item.id}>
+            <div>
+              <h3>Attempt {index + 1}</h3>
+              <p><b>Question:</b> {item.question}</p>
+              <p><b>Score:</b> {item.score}%</p>
+              <p><b>Date:</b> {item.attemptedAt}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+)}
+
+{activeTab === "history" && (
+  <section className="card">
+    <div className="section-title">
+      <h2>Interview History & Performance</h2>
+      <button className="sample-btn" onClick={fetchInterviewHistory}>
+        Refresh
+      </button>
+    </div>
+
+    {interviewHistory.length === 0 ? (
+      <p>No mock interview attempts yet.</p>
+    ) : (
+      <div className="job-list">
+        <div className="info-box">
+          <h3>
+            Average Score:{" "}
+            {Math.round(
+              interviewHistory.reduce((sum, item) => sum + item.score, 0) /
+                interviewHistory.length
+            )}
+            %
+          </h3>
+
+          <h3>
+            Trend:{" "}
+            {interviewHistory.length >= 2 &&
+            interviewHistory[interviewHistory.length - 1].score >
+              interviewHistory[0].score
+              ? "📈 Improving"
+              : "🔄 Keep Practicing"}
+          </h3>
+        </div>
+
+        {interviewHistory.map((item, index) => (
+          <div className="job-card" key={item.id}>
+            <div>
+              <h3>Attempt {index + 1}</h3>
+              <p><b>Question:</b> {item.question}</p>
+              <p><b>Score:</b> {item.score}%</p>
+              <p><b>Date:</b> {item.attemptedAt}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
+)}
 {activeTab === "applications" && (
   <section className="card">
     <h2>Application Status Tracker</h2>
